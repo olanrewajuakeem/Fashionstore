@@ -1,11 +1,18 @@
-import React from 'react'
+import React from "react";
+import Navbar from "./components/Navbar";
+import HeroSlider from "./components/HeroSlider";
 
-const App = () => {
+import BrowseCategoriesCarousel from "./components/BrowseCategoriesCarousel";
+
+function App() {
   return (
-    <div>
-      
+    <div className="App">
+      <Navbar />
+      <HeroSlider />
+      <BrowseCategoriesCarousel />
+      {/* Later: More sections like Categories, Products, Footer */}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
