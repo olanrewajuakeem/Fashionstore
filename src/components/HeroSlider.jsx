@@ -9,13 +9,13 @@ const slides = [
     button: "Shop Now"
   },
   {
-    image: assets.brand_img,
+    image: assets.banner,
     title: "Exclusive Collections",
     subtitle: "Upgrade your wardrobe today",
     button: "Explore"
   },
   {
-    image: assets.project_img_1,
+    image: assets.banner1,
     title: "Summer Sale",
     subtitle: "Get up to 50% off",
     button: "Grab Deals"
@@ -42,7 +42,6 @@ const HeroSlider = () => {
               index === current ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >
-            {/* Image */}
             <div className="w-full md:w-1/2 flex items-center justify-center">
               <img
                 src={slide.image}
@@ -51,7 +50,6 @@ const HeroSlider = () => {
               />
             </div>
 
-            {/* Text */}
             <div className="w-full md:w-1/2 flex flex-col items-center md:items-start justify-center text-white text-center md:text-left mt-6 md:mt-0 px-4">
               <h2 className="text-3xl md:text-5xl font-bold">{slide.title}</h2>
               <p className="mt-3 text-lg md:text-2xl">{slide.subtitle}</p>
@@ -63,7 +61,6 @@ const HeroSlider = () => {
         ))}
       </div>
 
-      {/* Navigation Dots */}
       <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
         {slides.map((_, index) => (
           <button

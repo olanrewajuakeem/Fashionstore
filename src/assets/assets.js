@@ -6,16 +6,24 @@ import star_icon from './star_icon.svg'
 import left_arrow from './left_arrow.svg'
 import right_arrow from './right_arrow.svg'
 import header_img from './header_img.jpg'
-import brand_img from './brand_img.png'
-import project_img_1 from './project_img_1.jpg'
-import project_img_2 from './project_img_2.jpg'
-import project_img_3 from './project_img_3.jpg'
-import project_img_4 from './project_img_4.jpg'
-import project_img_5 from './project_img_5.jpg'
-import project_img_6 from './project_img_6.jpg'
-import profile_img_1 from './profile_img_1.png'
-import profile_img_2 from './profile_img_2.png'
-import profile_img_3 from './profile_img_3.png'
+import banner from './banner.jpg'
+import banner1 from './banner1.png'
+import classicTee from "./classicTee.jpeg";
+import graphicTee from "./graphicTee.jpeg";
+import sneakers from "./sneakers.jpeg";
+import loafers from "./loafers.jpeg";
+import backpack from "./backpack.jpeg";
+import handbag from "./handbag .jpeg";
+import cap from "./cap.jpeg";
+import cowboyHat from "./cowboyHat.jpeg";
+import sunglasses from "./sunglasses.jpeg";
+import wristwatch from "./wristwatch.jpeg";
+import bag from "./bag.jpeg";
+import jacket  from "./jacket .jpeg";
+import dress  from "./dress.jpeg";
+import tshirt  from "./tshirt.jpeg";
+import brand_img from "./brand_img.jpeg";
+
 
 export const assets = {
     logo,
@@ -24,11 +32,23 @@ export const assets = {
     menu_icon,
     star_icon,
     header_img,
+    banner,
+    banner1,
+    classicTee,
+    graphicTee,
+    sneakers,
+    loafers,
+    backpack,
+    handbag,
+    cap,
+    cowboyHat,
+    sunglasses,
+    wristwatch,
+    bag,
+    dress,
+    jacket,
+    tshirt,
     brand_img,
-    project_img_1,
-    project_img_2,
-    project_img_3,
-    project_img_4,
     left_arrow,
     right_arrow,
 }

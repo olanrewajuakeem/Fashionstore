@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { assets } from "../assets/assets";
 import {
   FaTshirt,
   FaShoePrints,
@@ -9,7 +10,7 @@ import {
 } from "react-icons/fa";
 
 const categories = [
-  { name: "All Products", icon: <FaStar size={24} /> }, 
+  { name: "All Products", icon: <FaStar size={24} /> },
   { name: "T-Shirts", icon: <FaTshirt size={24} /> },
   { name: "Shoes", icon: <FaShoePrints size={24} /> },
   { name: "Bags", icon: <FaShoppingBag size={24} /> },
@@ -17,27 +18,26 @@ const categories = [
   { name: "Accessories", icon: <FaStar size={24} /> },
 ];
 
-
 const productsData = {
   "T-Shirts": [
-    { id: 1, name: "Classic Tee", price: "\u20A6 5,000", img: "#" },
-    { id: 2, name: "Graphic Tee", price: "\u20A6 5,500", img: "#" },
+    { id: 1, name: "Classic Tee", price: "\u20A6 5,000", img: assets.classicTee },
+    { id: 2, name: "Graphic Tee", price: "\u20A6 5,500", img: assets.graphicTee },
   ],
   Shoes: [
-    { id: 3, name: "Sneakers", price: "\u20A6 6,000", img: "#" },
-    { id: 4, name: "Loafers", price: "\u20A6 7,000", img: "#" },
+    { id: 3, name: "Sneakers", price: "\u20A6 6,000", img: assets.sneakers },
+    { id: 4, name: "Loafers", price: "\u20A6 7,000", img: assets.loafers },
   ],
   Bags: [
-    { id: 5, name: "Backpack", price: "\u20A6 5,000", img: "#" },
-    { id: 6, name: "Handbag", price: "\u20A6 7,500", img: "#" },
+    { id: 5, name: "Backpack", price: "\u20A6 5,000", img: assets.backpack },
+    { id: 6, name: "Handbag", price: "\u20A6 7,500", img: assets.handbag },
   ],
   Hats: [
-    { id: 7, name: "Baseball Cap", price: "\u20A6 15,000", img: "#" },
-    { id: 8, name: "Cowboy Hat", price: "\u20A6 5,000", img: "#" },
+    { id: 7, name: "Baseball Cap", price: "\u20A6 15,000", img: assets.cap },
+    { id: 8, name: "Cowboy Hat", price: "\u20A6 5,000", img: assets.cowboyHat },
   ],
   Accessories: [
-    { id: 9, name: "Sunglasses", price: "\u20A6 2,000", img: "#" },
-    { id: 10, name: "Wristwatch", price: "\u20A6 5,000", img: "#" },
+    { id: 9, name: "Sunglasses", price: "\u20A6 2,000", img: assets.sunglasses },
+    { id: 10, name: "Wristwatch", price: "\u20A6 5,000", img: assets.wristwatch },
   ],
 };
 
@@ -110,25 +110,30 @@ const BrowseCategoriesCarousel = () => {
             : productsData[selectedCategory]
           )?.map((product) => (
             <div
-              key={product.id}
-              className="relative bg-white rounded-lg shadow p-3 flex flex-col items-center text-center hover:shadow-md transition"
-            >
-              {/* Wishlist Icon */}
-              <button className="absolute top-2 right-2 text-gray-400 hover:text-red-500">
-                <FaHeart />
-              </button>
+  key={product.id}
+  className="relative bg-gray-100 rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4"
+>
+  {/* Wishlist Icon */}
+  <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500 z-10">
+    <FaHeart />
+  </button>
 
-              <img
-                src={product.img}
-                alt={product.name}
-                className="w-24 h-24 object-cover mb-2 rounded"
-              />
-              <h4 className="text-sm font-medium">{product.name}</h4>
-              <p className="text-gray-600 text-sm">{product.price}</p>
-              <button className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition">
-                Buy Now
-              </button>
-            </div>
+  {/* Bigger Image Container */}
+  <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
+    <img
+      src={product.img}
+      alt={product.name}
+      className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+    />
+  </div>
+
+  {/* Product Info */}
+  <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
+  <p className="text-gray-600 text-sm">{product.price}</p>
+  <button className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition">
+    Buy Now
+  </button>
+</div>
           ))}
         </div>
       </div>
