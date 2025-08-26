@@ -1,35 +1,34 @@
-
-import { assets } from "../assets/assets";
+// src/components/BestSellers.jsx
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import productsData from "../data/product";
 
 const BestSellers = () => {
-  const bestSellers = [
-    { id: 1, name: "Leather Bag", price: 9000, img: assets.bag },
-    { id: 2, name: "Sunglasses", price: 2500, img: assets.sunglasses },
-    { id: 3, name: "White T-Shirt", price: 2000, img: assets.tshirt },
-  ];
+  const navigate = useNavigate();
+
+  const allProducts = Object.values(productsData).flat();
+
+  const bestSellers = allProducts.filter((p) => p.isBestSeller);
 
   return (
     <div className="py-12 px-6 bg-gray-50">
-      <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">Best Sellers</h2>
-      
+      <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+        Best Sellers
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {bestSellers.map((item) => (
+        {bestSellers.map((product) => (
           <div
-            key={item.id}
-            className="bg-white rounded-2xl shadow hover:shadow-lg p-4 transition flex flex-col items-center text-center"
+            key={product.id}
+            onClick={() => navigate(`/product/${product.id}`)}
+            className="bg-white rounded-2xl shadow hover:shadow-lg p-4 transition flex flex-col items-center text-center cursor-pointer"
           >
-            {/* Product Image */}
             <img
-              src={item.img}
-              alt={item.name}
+              src={product.img}
+              alt={product.name}
               className="h-56 w-56 object-contain rounded-xl"
             />
-
-            {/* Product Name */}
-            <h3 className="mt-4 font-semibold text-gray-800">{item.name}</h3>
-
-            {/* Price */}
-            <p className="text-lg font-bold text-black-500 mt-2">₦{item.price.toLocaleString()}</p>
+            <h3 className="mt-4 font-semibold text-gray-800">{product.name}</h3>
+            <p className="text-lg font-bold text-black mt-2">{product.price}</p>
           </div>
         ))}
       </div>

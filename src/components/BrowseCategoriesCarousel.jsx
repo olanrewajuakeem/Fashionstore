@@ -1,13 +1,8 @@
+// src/components/BrowseCategoriesCarousel.jsx
 import React, { useState, useRef } from "react";
-import { assets } from "../assets/assets";
-import {
-  FaTshirt,
-  FaShoePrints,
-  FaShoppingBag,
-  FaHatCowboy,
-  FaStar,
-  FaHeart,
-} from "react-icons/fa";
+import { FaTshirt, FaShoePrints, FaShoppingBag, FaHatCowboy, FaStar, FaHeart } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import productsData from "../data/product";
 
 const categories = [
   { name: "All Products", icon: <FaStar size={24} /> },
@@ -18,34 +13,12 @@ const categories = [
   { name: "Accessories", icon: <FaStar size={24} /> },
 ];
 
-const productsData = {
-  "T-Shirts": [
-    { id: 1, name: "Classic Tee", price: "\u20A6 5,000", img: assets.classicTee },
-    { id: 2, name: "Graphic Tee", price: "\u20A6 5,500", img: assets.graphicTee },
-  ],
-  Shoes: [
-    { id: 3, name: "Sneakers", price: "\u20A6 6,000", img: assets.sneakers },
-    { id: 4, name: "Loafers", price: "\u20A6 7,000", img: assets.loafers },
-  ],
-  Bags: [
-    { id: 5, name: "Backpack", price: "\u20A6 5,000", img: assets.backpack },
-    { id: 6, name: "Handbag", price: "\u20A6 7,500", img: assets.handbag },
-  ],
-  Hats: [
-    { id: 7, name: "Baseball Cap", price: "\u20A6 15,000", img: assets.cap },
-    { id: 8, name: "Cowboy Hat", price: "\u20A6 5,000", img: assets.cowboyHat },
-  ],
-  Accessories: [
-    { id: 9, name: "Sunglasses", price: "\u20A6 2,000", img: assets.sunglasses },
-    { id: 10, name: "Wristwatch", price: "\u20A6 5,000", img: assets.wristwatch },
-  ],
-};
-
-const allProducts = Object.values(productsData).flat();
-
 const BrowseCategoriesCarousel = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+
+  const allProducts = Object.values(productsData).flat();
 
   const scroll = (dir) => {
     if (containerRef.current) {
@@ -56,13 +29,17 @@ const BrowseCategoriesCarousel = () => {
     }
   };
 
+  const displayedProducts =
+    selectedCategory === "All Products"
+      ? allProducts
+      : productsData[selectedCategory];
+
   return (
     <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
       <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
         Browse by Category
       </h2>
 
-      {/* Categories */}
       <div className="relative flex items-center">
         <button
           onClick={() => scroll("left")}
@@ -71,10 +48,7 @@ const BrowseCategoriesCarousel = () => {
           &lt;
         </button>
 
-        <div
-          ref={containerRef}
-          className="flex space-x-4 overflow-x-auto px-8"
-        >
+        <div ref={containerRef} className="flex space-x-4 overflow-x-auto px-8">
           {categories.map((cat, i) => (
             <div
               key={i}
@@ -99,41 +73,38 @@ const BrowseCategoriesCarousel = () => {
         </button>
       </div>
 
-      {/* Products Grid */}
       <div className="mt-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
           {selectedCategory}
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {(selectedCategory === "All Products"
-            ? allProducts
-            : productsData[selectedCategory]
-          )?.map((product) => (
+          {displayedProducts?.map((product) => (
             <div
-  key={product.id}
-  className="relative bg-gray-100 rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4"
->
-  {/* Wishlist Icon */}
-  <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500 z-10">
-    <FaHeart />
-  </button>
+              key={product.id}
+              className="relative bg-gray-100 rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
+              <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500 z-10">
+                <FaHeart />
+              </button>
 
-  {/* Bigger Image Container */}
-  <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
-    <img
-      src={product.img}
-      alt={product.name}
-      className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
-    />
-  </div>
+              <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
+                <img
+                  src={product.img}
+                  alt={product.name}
+                  className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+                />
+              </div>
 
-  {/* Product Info */}
-  <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
-  <p className="text-gray-600 text-sm">{product.price}</p>
-  <button className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition">
-    Buy Now
-  </button>
-</div>
+              <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
+              <p className="text-gray-600 text-sm">{product.price}</p>
+
+              <button
+                className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition"
+              >
+                Buy Now
+              </button>
+            </div>
           ))}
         </div>
       </div>

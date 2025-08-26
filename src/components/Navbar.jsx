@@ -8,7 +8,7 @@ const Navbar = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Scroll helper function
+  
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
     if (section) {
@@ -22,7 +22,6 @@ const Navbar = () => {
     <div className="fixed top-0 left-0 w-full bg-white z-20 shadow-md">
       <div className="flex items-center justify-center px-6 h-20 space-x-8">
 
-        {/* Logo */}
         <div
           onClick={() => navigate("/")}
           className="flex items-center space-x-2 cursor-pointer"
@@ -31,7 +30,6 @@ const Navbar = () => {
           <span className="font-bold text-xl text-gray-900">FashionStore</span>
         </div>
 
-        {/* Search bar */}
         <div className="relative w-72 hidden md:block">
           <input
             type="text"
@@ -41,7 +39,6 @@ const Navbar = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
         </div>
 
-        {/* Links */}
         <ul className="hidden md:flex items-center space-x-6 font-semibold text-gray-700">
           <li>
             <button onClick={() => navigate("/")} className="hover:text-gray-900">Home</button>
@@ -57,7 +54,6 @@ const Navbar = () => {
           </li>
         </ul>
 
-        {/* Icons */}
         <div className="flex items-center space-x-4 relative">
           <button onClick={() => navigate("/wishlist")} className="hover:text-gray-600">
             <Heart size={22} />
@@ -66,7 +62,6 @@ const Navbar = () => {
             <ShoppingCart size={22} />
           </button>
 
-          {/* User Dropdown */}
           <div className="relative">
             <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="hover:text-gray-600">
               <User size={22} />
