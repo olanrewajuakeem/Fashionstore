@@ -1,4 +1,3 @@
-
 const About = () => {
   return (
     <div className="py-16 px-6 bg-gray-50" id="About">

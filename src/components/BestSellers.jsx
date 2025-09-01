@@ -1,4 +1,4 @@
-// src/components/BestSellers.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import productsData from "../data/product";
