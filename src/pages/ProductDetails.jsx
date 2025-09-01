@@ -2,9 +2,13 @@ import { useParams } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import { useState } from "react";
 import productsData from "../data/product";
+import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext"; 
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const { addToCart } = useCart(); 
+  const { toggleWishlist, wishlistItems } = useWishlist(); 
   const allProducts = Object.values(productsData).flat();
   const product = allProducts.find((p) => p.id === parseInt(id));
   const [quantity, setQuantity] = useState(1);
@@ -16,6 +20,12 @@ const ProductDetails = () => {
       </h2>
     );
   }
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, qty: quantity });
+  };
+
+  const isInWishlist = wishlistItems.some((item) => item.id === product.id);
 
   return (
     <div className="container mx-auto px-6 mt-32">
@@ -31,7 +41,19 @@ const ProductDetails = () => {
 
         <div className="flex-1 flex flex-col justify-start">
           <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
-          <p className="text-2xl text-black font-semibold mt-3">{product.price}</p>
+
+          <div className="mt-3 flex items-center gap-2">
+            <p className="text-2xl text-black font-semibold">
+              ₦{Number(product.price).toLocaleString()}
+            </p>
+
+            {product.isDiscounted && (
+              <p className="text-gray-400 line-through">
+                ₦{Number(product.oldPrice).toLocaleString()}
+              </p>
+            )}
+          </div>
+
           <p className="mt-4 text-gray-600 text-sm md:text-base">
             {product.description || "This is a premium quality product you'll love."}
           </p>
@@ -41,14 +63,14 @@ const ProductDetails = () => {
             <div className="flex items-center border rounded-xl overflow-hidden">
               <button
                 className="px-3 py-1 text-lg hover:bg-gray-100"
-                onClick={() => setQuantity(q => (q > 1 ? q - 1 : 1))}
+                onClick={() => setQuantity((q) => (q > 1 ? q - 1 : 1))}
               >
                 -
               </button>
               <span className="px-4 py-1">{quantity}</span>
               <button
                 className="px-3 py-1 text-lg hover:bg-gray-100"
-                onClick={() => setQuantity(q => q + 1)}
+                onClick={() => setQuantity((q) => q + 1)}
               >
                 +
               </button>
@@ -56,17 +78,25 @@ const ProductDetails = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 mt-6">
-            <button className="bg-black text-white px-6 py-2 rounded-xl hover:bg-gray-800 transition">
+            <button
+              className="bg-black text-white px-6 py-2 rounded-xl hover:bg-gray-800 transition"
+              onClick={handleAddToCart}
+            >
               Add to Cart
             </button>
 
-            <button className="flex items-center gap-2 border px-6 py-2 rounded-xl hover:bg-gray-100 transition">
-              <FaHeart className="text-red-500" /> Wishlist
+            <button
+              className={`flex items-center gap-2 border px-6 py-2 rounded-xl transition ${
+                isInWishlist ? "bg-red-500 text-white" : "hover:bg-gray-100"
+              }`}
+              onClick={() => toggleWishlist(product)} 
+            >
+              <FaHeart className="text-white" /> Wishlist
             </button>
           </div>
 
           <div className="mt-6 text-gray-500 text-sm">
-            <p>Category: {product.category}</p>
+            <p>Category: {product.category || "N/A"}</p>
             <p>Availability: In Stock</p>
           </div>
         </div>

@@ -11,8 +11,13 @@ const Home = () => {
   return (
     <div>
       <HeroSlider />
-      <BrowseCategoriesCarousel />
-      <DiscountsSection />
+      <div id="browse-categories">
+  <BrowseCategoriesCarousel />
+</div>
+
+<div id="discounts">
+  <DiscountsSection />
+</div>
       <PromoBanner />
       <BestSellers />
       <div id="about">

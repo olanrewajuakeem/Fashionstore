@@ -7,10 +7,15 @@ import Cart from "./pages/Cart";
 import ProductDetails from "./pages/ProductDetails";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 
 
 const AppRoutes = () => {
   return (
+    < WishlistProvider >
+        <CartProvider>
+
     <Router>
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
@@ -22,6 +27,9 @@ const AppRoutes = () => {
 
       </Routes>
     </Router>
+        </CartProvider>
+        </WishlistProvider>
+
   ); 
 };
 

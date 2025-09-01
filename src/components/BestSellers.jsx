@@ -28,7 +28,7 @@ const BestSellers = () => {
               className="h-56 w-56 object-contain rounded-xl"
             />
             <h3 className="mt-4 font-semibold text-gray-800">{product.name}</h3>
-            <p className="text-lg font-bold text-black mt-2">{product.price}</p>
+            <p className="text-lg font-bold text-black mt-2">  ₦{Number(product.price).toLocaleString()}</p>
           </div>
         ))}
       </div>

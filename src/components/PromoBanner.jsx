@@ -1,4 +1,3 @@
-// src/components/PromoBanner.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import productsData from "../data/product";
@@ -8,7 +7,9 @@ const PromoBanner = () => {
 
   const allProducts = Object.values(productsData).flat();
 
-  const promoProduct = allProducts.find((p) => p.isPromo);
+const promoProducts = allProducts.filter((p) => p.isPromo);
+const promoProduct = promoProducts[Math.floor(Math.random() * promoProducts.length)];
+
 
   if (!promoProduct) return null; 
 

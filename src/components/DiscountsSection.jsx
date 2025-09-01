@@ -1,15 +1,13 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import productsData from "../data/product";
+import { useCart } from "../context/CartContext"; 
 
 const DiscountsSection = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart(); 
 
-  
   const allProducts = Object.values(productsData).flat();
-
-  
   const discountedProducts = allProducts.filter((p) => p.isDiscounted);
 
   return (
@@ -34,13 +32,23 @@ const DiscountsSection = () => {
             <h3 className="mt-4 font-semibold text-gray-800">{product.name}</h3>
 
             <div className="flex items-center space-x-2 mt-2">
-              <span className="text-lg font-bold text-red-500">{product.price}</span>
+              <span className="text-lg font-bold text-red-500">
+                ₦{Number(product.price).toLocaleString()}
+              </span>
               {product.oldPrice && (
-                <span className="text-gray-400 line-through">{product.oldPrice}</span>
+                <span className="text-gray-400 line-through">
+                  ₦{Number(product.oldPrice).toLocaleString()}
+                </span>
               )}
             </div>
 
-            <button className="mt-3 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition">
+            <button
+              className="mt-3 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition"
+              onClick={(e) => {
+                e.stopPropagation(); 
+                addToCart({ ...product, qty: 1 }); 
+              }}
+            >
               Add to Cart
             </button>
           </div>

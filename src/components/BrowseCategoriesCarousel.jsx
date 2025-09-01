@@ -1,8 +1,8 @@
-// src/components/BrowseCategoriesCarousel.jsx
 import React, { useState, useRef } from "react";
 import { FaTshirt, FaShoePrints, FaShoppingBag, FaHatCowboy, FaStar, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import productsData from "../data/product";
+import { useWishlist } from "../context/WishlistContext"; 
 
 const categories = [
   { name: "All Products", icon: <FaStar size={24} /> },
@@ -17,6 +17,7 @@ const BrowseCategoriesCarousel = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const containerRef = useRef(null);
   const navigate = useNavigate();
+  const { wishlistItems, toggleWishlist } = useWishlist(); 
 
   const allProducts = Object.values(productsData).flat();
 
@@ -33,6 +34,9 @@ const BrowseCategoriesCarousel = () => {
     selectedCategory === "All Products"
       ? allProducts
       : productsData[selectedCategory];
+
+  const isInWishlist = (productId) =>
+    wishlistItems.some((item) => item.id === productId);
 
   return (
     <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
@@ -84,7 +88,15 @@ const BrowseCategoriesCarousel = () => {
               className="relative bg-gray-100 rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
               onClick={() => navigate(`/product/${product.id}`)}
             >
-              <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500 z-10">
+              <button
+                className={`absolute top-3 right-3 text-xl z-10 ${
+                  isInWishlist(product.id) ? "text-red-500" : "text-gray-400"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  toggleWishlist(product); 
+                }}
+              >
                 <FaHeart />
               </button>
 
@@ -97,7 +109,9 @@ const BrowseCategoriesCarousel = () => {
               </div>
 
               <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
-              <p className="text-gray-600 text-sm">{product.price}</p>
+              <p className="text-gray-600 text-sm">
+                ₦{Number(product.price).toLocaleString()}
+              </p>
 
               <button
                 className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition"

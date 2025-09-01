@@ -6,19 +6,22 @@ const slides = [
     image: assets.header_img,
     title: "New Fashion Trends",
     subtitle: "Discover the latest arrivals",
-    button: "Shop Now"
+    button: "Shop Now",
+    scrollToId: "browse-categories"
   },
   {
     image: assets.banner,
     title: "Exclusive Collections",
     subtitle: "Upgrade your wardrobe today",
-    button: "Explore"
+    button: "Explore",
+    scrollToId: "browse-categories"
   },
   {
     image: assets.banner1,
     title: "Summer Sale",
     subtitle: "Get up to 50% off",
-    button: "Grab Deals"
+    button: "Grab Deals",
+    scrollToId: "discounts"
   }
 ];
 
@@ -31,6 +34,15 @@ const HeroSlider = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleButtonClick = (scrollToId) => {
+    if (scrollToId) {
+      const section = document.getElementById(scrollToId);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] bg-black overflow-hidden">
@@ -53,7 +65,10 @@ const HeroSlider = () => {
             <div className="w-full md:w-1/2 flex flex-col items-center md:items-start justify-center text-white text-center md:text-left mt-6 md:mt-0 px-4">
               <h2 className="text-3xl md:text-5xl font-bold">{slide.title}</h2>
               <p className="mt-3 text-lg md:text-2xl">{slide.subtitle}</p>
-              <button className="mt-5 bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200 transition-all w-max">
+              <button
+                className="mt-5 bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200 transition-all w-max"
+                onClick={() => handleButtonClick(slide.scrollToId)}
+              >
                 {slide.button}
               </button>
             </div>

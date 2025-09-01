@@ -1,60 +1,19 @@
-import React, { useState } from "react";
-import { assets } from "../assets/assets";
-
-const allProducts = [
-  { id: 1, name: "Classic Tee", price: 5000, img: assets.tshirt },
-  { id: 2, name: "Sneakers", price: 6000, img: assets.sneakers },
-  { id: 3, name: "Backpack", price: 7000, img: assets.bag },
-];
+import React from "react";
+import { useCart } from "../context/CartContext";
 
 const Cart = () => {
-  const [cart, setCart] = useState([]);
-
-  const addToCart = (productId) => {
-    const exists = cart.find((item) => item.id === productId);
-    if (exists) {
-      setCart(
-        cart.map((item) =>
-          item.id === productId ? { ...item, qty: item.qty + 1 } : item
-        )
-      );
-    } else {
-      const product = allProducts.find((p) => p.id === productId);
-      setCart([...cart, { ...product, qty: 1 }]);
-    }
-  };
-
-  const removeFromCart = (productId) => {
-    setCart(cart.filter((item) => item.id !== productId));
-  };
-
-  const updateQty = (productId, qty) => {
-    setCart(
-      cart.map((item) =>
-        item.id === productId ? { ...item, qty: Math.max(1, qty) } : item
-      )
-    );
-  };
-
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const { cart, removeFromCart, updateQty, total } = useCart();
 
   return (
     <div className="bg-gray-50 min-h-screen pt-20 md:pt-20">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Heading */}
         <h2 className="text-3xl font-bold text-center mb-4 text-gray-800">
           My Cart
         </h2>
 
-        {/* Empty cart message */}
-        {cart.length === 0 && (
-          <div className="text-center mb-8">
-            <p className="text-gray-600 text-lg">Your cart is empty.</p>
-          </div>
-        )}
-
-        {/* Cart items */}
-        {cart.length > 0 && (
+        {cart.length === 0 ? (
+          <p className="text-center text-gray-600 text-lg">Your cart is empty.</p>
+        ) : (
           <div className="space-y-6">
             {cart.map((item) => (
               <div
@@ -93,7 +52,6 @@ const Cart = () => {
               </div>
             ))}
 
-            {/* Total and checkout */}
             <div className="text-right font-bold text-xl text-gray-800">
               Total: ₦{total.toLocaleString()}
             </div>
