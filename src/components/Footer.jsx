@@ -25,10 +25,16 @@ const Footer = () => {
         {/* Social Media */}
         <div>
           <h3 className="font-bold text-lg mb-3">Follow Us</h3>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-gray-400"><Facebook size={20} /></a>
-            <a href="#" className="hover:text-gray-400"><Twitter size={20} /></a>
-            <a href="#" className="hover:text-gray-400"><Instagram size={20} /></a>
+  <div className="flex space-x-4">
+    <a href="#" className="text-green-500 hover:text-green-600">
+      <Facebook size={20} />
+    </a>
+    <a href="#" className="text-green-500 hover:text-green-600">
+      <Twitter size={20} />
+    </a>
+    <a href="#" className="text-green-500 hover:text-green-600">
+      <Instagram size={20} />
+    </a>
           </div>
         </div>
       </div>

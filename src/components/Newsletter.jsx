@@ -15,7 +15,7 @@ const Newsletter = () => {
             placeholder="Enter your email"
             className="flex-1 px-4 py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-gray-400 outline-none"
           />
-          <button className="bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800">
+          <button className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600">
             Subscribe
           </button>
         </div>

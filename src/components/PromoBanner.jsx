@@ -24,7 +24,8 @@ const promoProduct = promoProducts[Math.floor(Math.random() * promoProducts.leng
         </p>
         <button
           onClick={() => navigate(`/product/${promoProduct.id}`)}
-          className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200 transition"
+          className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition"
+
         >
           Shop Now
         </button>

@@ -59,7 +59,7 @@ const BrowseCategoriesCarousel = () => {
               onClick={() => setSelectedCategory(cat.name)}
               className={`flex flex-col items-center justify-center min-w-[90px] p-3 rounded-lg cursor-pointer transition-all ${
                 selectedCategory === cat.name
-                  ? "bg-black text-white"
+                  ? "bg-green-700 text-white hover:bg-green-800"
                   : "bg-white text-gray-900 hover:bg-gray-100"
               }`}
             >
@@ -114,7 +114,8 @@ const BrowseCategoriesCarousel = () => {
               </p>
 
               <button
-                className="mt-2 bg-black text-white px-3 py-1 rounded-full text-xs hover:bg-gray-800 transition"
+              className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
+
               >
                 Buy Now
               </button>

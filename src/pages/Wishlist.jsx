@@ -54,7 +54,8 @@ const Wishlist = () => {
 
                 <button
                   onClick={() => handleAddToCart(product)}
-                  className="mt-3 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition"
+                  className="mt-3 w-full bg-green-500 text-white py-2 rounded-xl hover:bg-green-600 transition"
+
                 >
                   Add to Cart
                 </button>

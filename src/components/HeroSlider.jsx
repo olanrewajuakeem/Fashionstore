@@ -46,6 +46,9 @@ const HeroSlider = () => {
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] bg-black overflow-hidden">
+
+
+
       <div className="w-full h-full relative">
         {slides.map((slide, index) => (
           <div
@@ -66,7 +69,8 @@ const HeroSlider = () => {
               <h2 className="text-3xl md:text-5xl font-bold">{slide.title}</h2>
               <p className="mt-3 text-lg md:text-2xl">{slide.subtitle}</p>
               <button
-                className="mt-5 bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-200 transition-all w-max"
+className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
+
                 onClick={() => handleButtonClick(slide.scrollToId)}
               >
                 {slide.button}
