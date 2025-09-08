@@ -1,38 +1,68 @@
-import { useParams } from "react-router-dom";
-import { FaHeart } from "react-icons/fa";
-import { useState } from "react";
-import productsData from "../data/product";
-import { useCart } from "../context/CartContext";
-import { useWishlist } from "../context/WishlistContext"; 
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { FaHeart } from 'react-icons/fa'
+import axios from 'axios'
+import { useCart } from '../context/CartContext'
+import { useWishlist } from '../context/WishlistContext'
+import { useAuth } from '../context/AuthContext'
 
 const ProductDetails = () => {
-  const { id } = useParams();
-  const { addToCart } = useCart(); 
-  const { toggleWishlist, wishlistItems } = useWishlist(); 
-  const allProducts = Object.values(productsData).flat();
-  const product = allProducts.find((p) => p.id === parseInt(id));
-  const [quantity, setQuantity] = useState(1);
+  const { id } = useParams()
+  const [product, setProduct] = useState(null)
+  const [quantity, setQuantity] = useState(1)
+  const [error, setError] = useState('')
+  const { addToCart } = useCart()
+  const { toggleWishlist, wishlistItems } = useWishlist()
+  const { user } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`/api/products/${id}`)
+        setProduct(response.data)
+        setError('')
+      } catch (err) {
+        setError(err.response?.data?.message || 'Product not found')
+      }
+    }
+    fetchProduct()
+  }, [id])
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    try {
+      await axios.post(
+        '/api/cart',
+        { product_id: product.id, quantity },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      )
+      addToCart({ ...product, qty: quantity })
+      alert('Added to cart!')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to add to cart')
+    }
+  }
 
   if (!product) {
     return (
       <h2 className="text-center mt-40 text-xl font-semibold">
-        Product not found
+        {error || 'Loading...'}
       </h2>
-    );
+    )
   }
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, qty: quantity });
-  };
-
-  const isInWishlist = wishlistItems.some((item) => item.id === product.id);
+  const isInWishlist = wishlistItems.some((item) => item.id === product.id)
 
   return (
     <div className="container mx-auto px-6 mt-32">
       <div className="flex flex-col md:flex-row gap-10">
         <div className="flex-1 flex items-center justify-center">
           <img
-            src={product.img}
+            src={product.image_url}
             alt={product.name}
             className="w-full max-w-md h-[400px] object-contain rounded-xl shadow-md"
             loading="lazy"
@@ -46,16 +76,10 @@ const ProductDetails = () => {
             <p className="text-2xl text-black font-semibold">
               ₦{Number(product.price).toLocaleString()}
             </p>
-
-            {product.isDiscounted && (
-              <p className="text-gray-400 line-through">
-                ₦{Number(product.oldPrice).toLocaleString()}
-              </p>
-            )}
           </div>
 
           <p className="mt-4 text-gray-600 text-sm md:text-base">
-            {product.description || "This is a premium quality product you'll love."}
+            {product.description || 'This is a premium quality product you\'ll love.'}
           </p>
 
           <div className="flex items-center mt-6 gap-4">
@@ -79,8 +103,7 @@ const ProductDetails = () => {
 
           <div className="flex flex-wrap items-center gap-4 mt-6">
             <button
-            className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition"
-
+              className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition"
               onClick={handleAddToCart}
             >
               Add to Cart
@@ -88,22 +111,23 @@ const ProductDetails = () => {
 
             <button
               className={`flex items-center gap-2 border px-6 py-2 rounded-xl transition ${
-                isInWishlist ? "bg-red-500 text-white" : "hover:bg-gray-100"
+                isInWishlist ? 'bg-red-500 text-white' : 'hover:bg-gray-100'
               }`}
-              onClick={() => toggleWishlist(product)} 
+              onClick={() => toggleWishlist(product)}
             >
-              <FaHeart className="text-white" /> Wishlist
+              <FaHeart className={isInWishlist ? 'text-white' : 'text-gray-400'} /> Wishlist
             </button>
           </div>
 
           <div className="mt-6 text-gray-500 text-sm">
-            <p>Category: {product.category || "N/A"}</p>
-            <p>Availability: In Stock</p>
+            <p>Category: {product.category}</p>
+            <p>Availability: {product.stock > 0 ? 'In Stock' : 'Out of Stock'}</p>
           </div>
+          {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProductDetails;
+export default ProductDetails

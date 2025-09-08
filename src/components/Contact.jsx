@@ -1,29 +1,29 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Message sent!"); 
-    setFormData({ name: "", email: "", message: "" });
+    try {
+      await axios.post("/api/contact", formData);
+      alert("Message sent!");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Contact error:", error.response?.data || error.message);
+      alert("Failed to send message");
+    }
   };
 
   return (
     <div className="py-16 px-6 bg-white" id="Contact">
       <div className="max-w-3xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">
-          Contact Us
-        </h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">Contact Us</h2>
         <p className="text-gray-600 mb-8">
           Have a question or feedback? Send us a message and we’ll get back to you soon.
         </p>
@@ -59,7 +59,6 @@ const Contact = () => {
           <button
             type="submit"
             className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition"
-
           >
             Send Message
           </button>

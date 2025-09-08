@@ -1,39 +1,103 @@
-
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import productsData from "../data/product";
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import { FaHeart } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import { useWishlist } from '../context/WishlistContext'
+import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 
 const BestSellers = () => {
-  const navigate = useNavigate();
+  const [products, setProducts] = useState([])
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+  const { wishlistItems, toggleWishlist } = useWishlist()
+  const { addToCart } = useCart()
+  const { user } = useAuth()
 
-  const allProducts = Object.values(productsData).flat();
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/api/products')
+        setProducts(response.data.slice(0, 4)) // Limit to 4 for best sellers
+        setError('')
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch products')
+      }
+    }
+    fetchProducts()
+  }, [])
 
-  const bestSellers = allProducts.filter((p) => p.isBestSeller);
+  const handleAddToCart = async (product) => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    try {
+      await axios.post(
+        '/api/cart',
+        { product_id: product.id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      )
+      addToCart({ ...product, qty: 1 })
+      alert('Added to cart!')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to add to cart')
+    }
+  }
+
+  const isInWishlist = (productId) => wishlistItems.some((item) => item.id === productId)
 
   return (
-    <div className="py-12 px-6 bg-gray-50">
-      <h2 className="text-2xl font-bold text-center mb-8 text-gray-800">
+    <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
+      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
         Best Sellers
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {bestSellers.map((product) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {products.map((product) => (
           <div
             key={product.id}
+            className="relative bg-white rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
             onClick={() => navigate(`/product/${product.id}`)}
-            className="bg-white rounded-2xl shadow hover:shadow-lg p-4 transition flex flex-col items-center text-center cursor-pointer"
           >
-            <img
-              src={product.img}
-              alt={product.name}
-              className="h-56 w-56 object-contain rounded-xl"
-            />
-            <h3 className="mt-4 font-semibold text-gray-800">{product.name}</h3>
-            <p className="text-lg font-bold text-black mt-2">  ₦{Number(product.price).toLocaleString()}</p>
+            <button
+              className={`absolute top-3 right-3 text-xl z-10 ${
+                isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleWishlist(product)
+              }}
+            >
+              <FaHeart />
+            </button>
+
+            <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+
+            <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
+            <p className="text-gray-600 text-sm">₦{Number(product.price).toLocaleString()}</p>
+            <p className="text-gray-600 text-sm">Category: {product.category}</p>
+
+            <button
+              className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleAddToCart(product)
+              }}
+            >
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BestSellers;
+export default BestSellers
