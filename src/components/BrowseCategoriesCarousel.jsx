@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
-import { FaTshirt, FaShoePrints, FaShoppingBag, FaHatCowboy, FaStar, FaHeart } from 'react-icons/fa'
+import {
+  FaTshirt,
+  FaShoePrints,
+  FaShoppingBag,
+  FaHatCowboy,
+  FaStar,
+  FaHeart,
+} from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { useWishlist } from '../context/WishlistContext'
 import { useCart } from '../context/CartContext'
@@ -33,10 +40,17 @@ const BrowseCategoriesCarousel = () => {
             ? '/api/products'
             : `/api/products?category=${selectedCategory}`
         )
-        setProducts(response.data)
+
+        // Ensure products is an array
+        const productsArray = Array.isArray(response.data)
+          ? response.data
+          : response.data.products || []
+
+        setProducts(productsArray)
         setError('')
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch products')
+        setProducts([]) // Clear products on error
       }
     }
     fetchProducts()
@@ -51,7 +65,8 @@ const BrowseCategoriesCarousel = () => {
     }
   }
 
-  const isInWishlist = (productId) => wishlistItems.some((item) => item.id === productId)
+  const isInWishlist = (productId) =>
+    wishlistItems.some((item) => item.id === productId)
 
   const handleAddToCart = async (product) => {
     if (!user) {
@@ -74,6 +89,7 @@ const BrowseCategoriesCarousel = () => {
   return (
     <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+
       <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
         Browse by Category
       </h2>
@@ -112,52 +128,61 @@ const BrowseCategoriesCarousel = () => {
       </div>
 
       <div className="mt-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">{selectedCategory}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {products?.map((product) => (
-            <div
-              key={product.id}
-              className="relative bg-white rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
-              onClick={() => navigate(`/product/${product.id}`)}
-            >
-              <button
-                className={`absolute top-3 right-3 text-xl z-10 ${
-                  isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleWishlist(product)
-                }}
-              >
-                <FaHeart />
-              </button>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          {selectedCategory}
+        </h3>
 
-              <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
-                />
+        {products.length === 0 ? (
+          <div className="text-center text-gray-500 mt-10">
+            No products found in this category.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="relative bg-white rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
+                onClick={() => navigate(`/product/${product.id}`)}
+              >
+                <button
+                  className={`absolute top-3 right-3 text-xl z-10 ${
+                    isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleWishlist(product)
+                  }}
+                >
+                  <FaHeart />
+                </button>
+
+                <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+
+                <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
+                <p className="text-red-500 font-bold mt-1">
+                  ₦{Number(product.price).toLocaleString()}
+                </p>
+                <p className="text-gray-600 text-sm">Category: {product.category}</p>
+
+                <button
+                  className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleAddToCart(product)
+                  }}
+                >
+                  Add to Cart
+                </button>
               </div>
-
-              <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
-              <p className="text-red-500 font-bold mt-1">
-                ₦{Number(product.price).toLocaleString()}
-              </p>
-              <p className="text-gray-600 text-sm">Category: {product.category}</p>
-
-              <button
-                className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleAddToCart(product)
-                }}
-              >
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
