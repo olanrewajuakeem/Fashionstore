@@ -10,6 +10,7 @@ import Cart from './pages/Cart'
 import ProductDetails from './pages/ProductDetails'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
+import MyProfile from './pages/MyProfile' // <-- added
 
 // Admin imports
 import AdminApp from './admin/AdminApp'
@@ -28,6 +29,7 @@ const AppRoutes = () => {
               <Route path="/product/:id" element={<Layout><ProductDetails /></Layout>} />
               <Route path="/signup" element={<Layout><Signup /></Layout>} />
               <Route path="/login" element={<Layout><Login /></Layout>} />
+              <Route path="/my-profile" element={<Layout><MyProfile /></Layout>} /> {/* added */}
 
               {/* Admin routes */}
               <Route path="/admin/*" element={<AdminApp />} />
