@@ -1,40 +1,33 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useState, useEffect } from 'react'
+import axios from 'axios'
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    const storedIsAdmin = localStorage.getItem('is_admin') === 'true';
+    const token = localStorage.getItem('token')
+    const storedUser = localStorage.getItem('user')
+    const storedIsAdmin = localStorage.getItem('is_admin')
     if (token && storedUser) {
-      setUser({ token, ...JSON.parse(storedUser) });
-      setIsAdmin(storedIsAdmin);
+      setUser({ token, ...JSON.parse(storedUser) })
+      setIsAdmin(storedIsAdmin === 'true')
     }
   }, []);
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/login', { email, password });
-      const { access_token, is_admin } = response.data;
-      const userData = { email };
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('is_admin', is_admin.toString());
-      setUser({ token: access_token, ...userData });
-      setIsAdmin(is_admin);
-      if (is_admin) {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
-      return { success: true };
+      const response = await axios.post('/api/login', { email, password })
+      const { access_token, is_admin } = response.data
+      const userData = { email }
+      localStorage.setItem('token', access_token)
+      localStorage.setItem('user', JSON.stringify(userData))
+      localStorage.setItem('is_admin', is_admin)
+      setUser({ token: access_token, ...userData })
+      setIsAdmin(is_admin)
+      return { success: true }
     } catch (err) {
       return { success: false, message: err.response?.data?.message || 'Login failed' };
     }
@@ -50,19 +43,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('is_admin');
-    setUser(null);
-    setIsAdmin(false);
-    navigate('/login');
-  };
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('is_admin')
+    setUser(null)
+    setIsAdmin(false)
+  }
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => React.useContext(AuthContext);
+export const useAuth = () => React.useContext(AuthContext)

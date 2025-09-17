@@ -9,7 +9,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { user, isAdmin, logout } = useContext(AuthContext)
+  const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const scrollToSection = (id) => {
@@ -43,6 +43,7 @@ const Navbar = () => {
   return (
     <div className="fixed top-0 left-0 w-full bg-white z-20 shadow-md">
       <div className="flex items-center justify-center px-6 h-20 space-x-8">
+        {/* Logo */}
         <div
           onClick={() => navigate('/')}
           className="flex items-center space-x-2 cursor-pointer"
@@ -51,6 +52,7 @@ const Navbar = () => {
           <span className="font-bold text-xl text-gray-900">FashionStore</span>
         </div>
 
+        {/* Search (desktop) */}
         <form onSubmit={handleSearch} className="relative w-72 hidden md:block">
           <input
             type="text"
@@ -64,21 +66,15 @@ const Navbar = () => {
           </button>
         </form>
 
+        {/* Main nav links */}
         <ul className="hidden md:flex items-center space-x-6 font-semibold text-gray-700">
-          <li>
-            <button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button>
-          </li>
-          <li>
-            <button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button>
-          </li>
-          <li>
-            <button onClick={() => scrollToSection('contact')} className="hover:text-gray-900">Contact</button>
-          </li>
-          <li>
-            <button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button>
-          </li>
+          <li><button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button></li>
+          <li><button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button></li>
+          <li><button onClick={() => scrollToSection('contact')} className="hover:text-gray-900">Contact</button></li>
+          <li><button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button></li>
         </ul>
 
+        {/* Right side icons */}
         <div className="flex items-center space-x-4 relative">
           <button onClick={() => navigate('/wishlist')} className="hover:text-gray-600">
             <Heart size={22} />
@@ -87,16 +83,37 @@ const Navbar = () => {
             <ShoppingCart size={22} />
           </button>
 
+          {/* User menu */}
           <div className="relative">
-            <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="hover:text-gray-600">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex items-center space-x-2 hover:text-gray-600"
+            >
               <User size={22} />
+              {user && (
+                <span className="hidden md:inline text-sm font-medium text-gray-700">
+                  {user.name || user.username || 'Profile'}
+                </span>
+              )}
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-md overflow-hidden">
                 {user ? (
                   <>
-                    {isAdmin && (
+                    {/* My Profile */}
+                    <button
+                      onClick={() => {
+                        navigate('/my-profile')
+                        setUserMenuOpen(false)
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      My Profile
+                    </button>
+
+                    {/* Admin only */}
+                    {user?.role === 'admin' && (
                       <button
                         onClick={() => {
                           navigate('/admin/products')
@@ -107,6 +124,8 @@ const Navbar = () => {
                         Admin Dashboard
                       </button>
                     )}
+
+                    {/* Logout */}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -140,14 +159,17 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* Mobile toggle */}
           <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
+      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white w-full shadow-md px-6 py-4">
+          {/* Search mobile */}
           <form onSubmit={handleSearch} className="relative mb-4">
             <input
               type="text"
@@ -161,12 +183,28 @@ const Navbar = () => {
             </button>
           </form>
 
+          {/* Mobile links */}
           <ul className="flex flex-col space-y-3 font-semibold text-gray-700">
             <li><button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button></li>
             <li><button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button></li>
             <li><button onClick={() => scrollToSection('contact')} className="hover:text-gray-900">Contact</button></li>
             <li><button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button></li>
-            {user && isAdmin && (
+
+            {user && (
+              <li>
+                <button
+                  onClick={() => {
+                    navigate('/my-profile')
+                    setMobileOpen(false)
+                  }}
+                  className="hover:text-gray-900"
+                >
+                  My Profile
+                </button>
+              </li>
+            )}
+
+            {user?.role === 'admin' && (
               <li>
                 <button
                   onClick={() => {
@@ -179,6 +217,7 @@ const Navbar = () => {
                 </button>
               </li>
             )}
+
             {user ? (
               <li>
                 <button onClick={handleLogout} className="hover:text-gray-900">Logout</button>
