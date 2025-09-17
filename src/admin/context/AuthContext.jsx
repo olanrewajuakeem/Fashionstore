@@ -1,21 +1,39 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Use named export
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    const storedIsAdmin = localStorage.getItem('is_admin') === 'true';
+    const token = localStorage.getItem('admin_token');
+    const storedUser = localStorage.getItem('admin_user');
+    const storedIsAdmin = localStorage.getItem('admin_is_admin') === 'true';
+
     if (token && storedUser) {
-      setUser({ token, ...JSON.parse(storedUser) });
-      setIsAdmin(storedIsAdmin);
+      try {
+        const decoded = jwtDecode(token); // Use jwtDecode
+        const currentTime = Date.now() / 1000;
+        if (decoded.exp < currentTime) {
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('admin_is_admin');
+          setUser(null);
+          setIsAdmin(false);
+        } else {
+          setUser({ token, ...JSON.parse(storedUser) });
+          setIsAdmin(storedIsAdmin);
+        }
+      } catch (err) {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('admin_is_admin');
+        setUser(null);
+        setIsAdmin(false);
+      }
     }
   }, []);
 
@@ -24,17 +42,12 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post('http://127.0.0.1:5000/api/login', { email, password });
       const { access_token, is_admin } = response.data;
       const userData = { email };
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('is_admin', is_admin.toString());
+      localStorage.setItem('admin_token', access_token);
+      localStorage.setItem('admin_user', JSON.stringify(userData));
+      localStorage.setItem('admin_is_admin', is_admin.toString());
       setUser({ token: access_token, ...userData });
       setIsAdmin(is_admin);
-      if (is_admin) {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
-      return { success: true };
+      return { success: true, is_admin };
     } catch (err) {
       return { success: false, message: err.response?.data?.message || 'Login failed' };
     }
@@ -50,12 +63,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('is_admin');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('admin_is_admin');
     setUser(null);
     setIsAdmin(false);
-    navigate('/login');
   };
 
   return (

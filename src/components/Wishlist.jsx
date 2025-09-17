@@ -1,6 +1,6 @@
 import React from "react";
 import { FaHeart } from "react-icons/fa";
-import { useWishlist } from "../context/WishlistContext"; // ✅ we will create this
+import { useWishlist } from "../context/WishlistContext"; 
 import { useNavigate } from "react-router-dom";
 
 const Wishlist = () => {
@@ -28,7 +28,7 @@ const Wishlist = () => {
                 {/* Toggle wishlist */}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // prevent navigating to product
+                    e.stopPropagation(); 
                     toggleWishlist(p.id);
                   }}
                   className={`absolute top-3 right-3 text-xl ${
