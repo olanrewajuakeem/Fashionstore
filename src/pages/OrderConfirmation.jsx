@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 import PaystackPop from '@paystack/inline-js';
 
 const OrderConfirmation = () => {
@@ -14,7 +13,7 @@ const OrderConfirmation = () => {
   console.log('OrderConfirmation state:', JSON.stringify(state, null, 2));
 
   if (!state || !state.orderId || !state.orderData || !state.orderData.items) {
-    console.log('Missing state details:', { state });
+    console.error('Missing state details:', { state });
     return (
       <div className="text-center py-12 text-red-500 text-sm sm:text-base">
         No order details available. Please try placing the order again.
@@ -37,7 +36,7 @@ const OrderConfirmation = () => {
 
     try {
       if (!window.PaystackPop) {
-        throw new Error('PaystackPop is not available.');
+        throw new Error('PaystackPop is not available. Ensure the Paystack script is loaded.');
       }
       const paystack = new PaystackPop();
       paystack.newTransaction({
@@ -48,18 +47,23 @@ const OrderConfirmation = () => {
         reference: `order_${orderId}_${Date.now()}`,
         metadata: { order_id: orderId },
         onSuccess: async (transaction) => {
-          console.log('Paystack payment success:', transaction);
+          console.log('Paystack payment success:', JSON.stringify(transaction, null, 2));
           try {
-            setPaymentStatus('completed');
-            await axios.post(
+            const response = await axios.post(
               'http://127.0.0.1:5000/api/orders/confirm-payment',
               { order_id: orderId, transaction_ref: transaction.reference },
               { headers: { Authorization: `Bearer ${user.token}` } }
             );
+            console.log('Payment confirmation response:', JSON.stringify(response.data, null, 2));
+            setPaymentStatus('completed');
             setTimeout(() => navigate('/profile'), 2000);
           } catch (err) {
+            console.error('Payment verification error:', {
+              message: err.message,
+              response: err.response?.data,
+              status: err.response?.status,
+            });
             setPaymentError('Payment verification failed. Please contact support.');
-            console.error('Payment verification error:', err.response?.data || err.message);
           }
         },
         onCancel: () => {
@@ -67,15 +71,19 @@ const OrderConfirmation = () => {
           setPaymentError('Payment cancelled. You can try again.');
         },
         onError: (error) => {
-          setPaymentError('Payment initiation failed. Please try again.');
           console.error('Paystack error:', error);
+          setPaymentError('Payment initiation failed. Please try again.');
         },
       });
     } catch (err) {
+      console.error('Paystack initialization error:', {
+        message: err.message,
+        stack: err.stack,
+      });
       setPaymentError('Failed to initiate payment. Please try again.');
-      console.error('Paystack initialization error:', err.message);
     }
   };
+
 
   let parsedShippingAddress = {
     address: 'N/A',
@@ -85,30 +93,20 @@ const OrderConfirmation = () => {
     phoneNumber: 'N/A',
   };
 
-  if (shipping_address) {
-    if (typeof shipping_address === 'string') {
-      console.log('Parsing shipping_address:', shipping_address);
-      const parts = shipping_address.split(', ');
-      if (parts.length >= 4) {
-        const postalAndPhone = parts[parts.length - 1].split('Phone: ');
-        parsedShippingAddress = {
-          address: parts[0] || 'N/A',
-          city: parts[1] || 'N/A',
-          state: parts[2] || 'N/A',
-          postalCode: postalAndPhone[0]?.trim() || 'N/A',
-          phoneNumber: postalAndPhone[1] || 'N/A',
-        };
-      } else {
-        parsedShippingAddress.address = shipping_address || 'N/A';
-      }
-    } else if (typeof shipping_address === 'object') {
+  if (shipping_address && typeof shipping_address === 'string') {
+    console.log('Parsing shipping_address:', shipping_address);
+    const parts = shipping_address.split(', ');
+    if (parts.length >= 4) {
+      const postalAndPhone = parts[parts.length - 1].split('Phone: ');
       parsedShippingAddress = {
-        address: shipping_address.address || 'N/A',
-        city: shipping_address.city || 'N/A',
-        state: shipping_address.state || 'N/A',
-        postalCode: shipping_address.postalCode || 'N/A',
-        phoneNumber: shipping_address.phoneNumber || 'N/A',
+        address: parts[0] || 'N/A',
+        city: parts[1] || 'N/A',
+        state: parts[2] || 'N/A',
+        postalCode: postalAndPhone[0]?.trim() || 'N/A',
+        phoneNumber: postalAndPhone[1] || 'N/A',
       };
+    } else {
+      parsedShippingAddress.address = shipping_address;
     }
   }
 
