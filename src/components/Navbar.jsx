@@ -4,12 +4,14 @@ import { AuthContext } from '../context/AuthContext'
 import { assets } from '../assets/assets'
 import { Heart, ShoppingCart, User, Search, Menu, X } from 'lucide-react'
 import axios from 'axios'
+import { useCart } from '../context/CartContext' 
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const { user, logout } = useContext(AuthContext)
+  const { cartCount } = useCart() 
   const navigate = useNavigate()
 
   const scrollToSection = (id) => {
@@ -43,7 +45,6 @@ const Navbar = () => {
   return (
     <div className="fixed top-0 left-0 w-full bg-white z-20 shadow-md">
       <div className="flex items-center justify-center px-6 h-20 space-x-8">
-        {/* Logo */}
         <div
           onClick={() => navigate('/')}
           className="flex items-center space-x-2 cursor-pointer"
@@ -52,7 +53,6 @@ const Navbar = () => {
           <span className="font-bold text-xl text-gray-900">FashionStore</span>
         </div>
 
-        {/* Search (desktop) */}
         <form onSubmit={handleSearch} className="relative w-72 hidden md:block">
           <input
             type="text"
@@ -66,7 +66,6 @@ const Navbar = () => {
           </button>
         </form>
 
-        {/* Main nav links */}
         <ul className="hidden md:flex items-center space-x-6 font-semibold text-gray-700">
           <li><button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button></li>
           <li><button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button></li>
@@ -74,16 +73,20 @@ const Navbar = () => {
           <li><button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button></li>
         </ul>
 
-        {/* Right side icons */}
         <div className="flex items-center space-x-4 relative">
-          <button onClick={() => navigate('/wishlist')} className="hover:text-gray-600">
+          <button onClick={() => navigate('/wishlist')} className="hover:text-gray-600 relative">
             <Heart size={22} />
           </button>
-          <button onClick={() => navigate('/cart')} className="hover:text-gray-600">
+
+          <button onClick={() => navigate('/cart')} className="relative hover:text-gray-600">
             <ShoppingCart size={22} />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
           </button>
 
-          {/* User menu */}
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -101,7 +104,6 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-md overflow-hidden">
                 {user ? (
                   <>
-                    {/* My Profile */}
                     <button
                       onClick={() => {
                         navigate('/my-profile')
@@ -112,7 +114,6 @@ const Navbar = () => {
                       My Profile
                     </button>
 
-                    {/* Admin only */}
                     {user?.role === 'admin' && (
                       <button
                         onClick={() => {
@@ -125,7 +126,6 @@ const Navbar = () => {
                       </button>
                     )}
 
-                    {/* Logout */}
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -159,17 +159,14 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile toggle */}
           <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white w-full shadow-md px-6 py-4">
-          {/* Search mobile */}
           <form onSubmit={handleSearch} className="relative mb-4">
             <input
               type="text"
@@ -183,7 +180,6 @@ const Navbar = () => {
             </button>
           </form>
 
-          {/* Mobile links */}
           <ul className="flex flex-col space-y-3 font-semibold text-gray-700">
             <li><button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button></li>
             <li><button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button></li>

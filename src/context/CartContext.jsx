@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
+export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const { user } = useAuth();
 
@@ -15,7 +15,6 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${user.token}` },
         })
         .then((response) => {
-          console.log('Fetched cart:', JSON.stringify(response.data, null, 2));
           setCart(
             response.data.map((item) => ({
               id: item.id,
@@ -30,11 +29,7 @@ export const CartProvider = ({ children }) => {
           );
         })
         .catch((err) => {
-          console.error('Failed to fetch cart:', {
-            message: err.message,
-            response: err.response?.data,
-            status: err.response?.status,
-          });
+          console.error('Failed to fetch cart:', err);
         });
     } else {
       const storedCart = localStorage.getItem('cart');
@@ -59,7 +54,6 @@ export const CartProvider = ({ children }) => {
         const response = await axios.get('http://127.0.0.1:5000/api/cart', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        console.log('Updated cart after add:', JSON.stringify(response.data, null, 2));
         setCart(
           response.data.map((item) => ({
             id: item.id,
@@ -73,30 +67,23 @@ export const CartProvider = ({ children }) => {
           }))
         );
       } catch (err) {
-        console.error('Failed to add to cart:', {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
+        console.error('Failed to add to cart:', err);
       }
     } else {
       const exists = cart.find((item) => item.id === product.id);
-      let updatedCart;
-      if (exists) {
-        updatedCart = cart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + (product.qty || 1) } : item
-        );
-      } else {
-        updatedCart = [
-          ...cart,
-          {
-            ...product,
-            qty: product.qty || 1,
-            image_url: product.image_url || product.img,
-            discounted_price: product.discounted_price || product.price,
-          },
-        ];
-      }
+      const updatedCart = exists
+        ? cart.map((item) =>
+            item.id === product.id ? { ...item, qty: item.qty + (product.qty || 1) } : item
+          )
+        : [
+            ...cart,
+            {
+              ...product,
+              qty: product.qty || 1,
+              image_url: product.image_url || product.img,
+              discounted_price: product.discounted_price || product.price,
+            },
+          ];
       setCart(updatedCart);
     }
   };
@@ -110,14 +97,9 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${user.token}` },
           data: { product_id: cartItem.product_id },
         });
-        console.log('Removed cart item:', cartItemId);
         setCart(cart.filter((item) => item.id !== cartItemId));
       } catch (err) {
-        console.error('Failed to remove from cart:', {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
+        console.error('Failed to remove from cart:', err);
       }
     } else {
       setCart(cart.filter((item) => item.id !== cartItemId));
@@ -137,7 +119,6 @@ export const CartProvider = ({ children }) => {
         const response = await axios.get('http://127.0.0.1:5000/api/cart', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        console.log('Updated cart after qty change:', JSON.stringify(response.data, null, 2));
         setCart(
           response.data.map((item) => ({
             id: item.id,
@@ -151,11 +132,7 @@ export const CartProvider = ({ children }) => {
           }))
         );
       } catch (err) {
-        console.error('Failed to update cart:', {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
+        console.error('Failed to update cart:', err);
       }
     } else {
       setCart(
@@ -167,34 +144,18 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = () => {
-    console.log('clearCart called');
-    if (user) {
-      setCart([]);
-    } else {
-  
-      localStorage.removeItem('cart');
-      setCart([]);
-    }
+    localStorage.removeItem('cart');
+    setCart([]);
   };
 
-  const total = cart.reduce((sum, item) => {
-    const price = item.discounted_price || item.price;
-    return sum + price * item.qty;
-  }, 0);
+  const total = cart.reduce((sum, item) => sum + (item.discounted_price || item.price) * item.qty, 0);
 
   return (
-    <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, updateQty, total, clearCart }}
-    >
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, total, clearCart }}>
       {children}
     </CartContext.Provider>
   );
-};
+}
 
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
-  return context;
-};
+export const useCart = () => useContext(CartContext);
+export { CartContext };

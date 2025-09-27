@@ -1,90 +1,102 @@
-import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
-import {
-  FaTshirt,
-  FaShoePrints,
-  FaShoppingBag,
-  FaHatCowboy,
-  FaStar,
-  FaHeart,
-} from 'react-icons/fa'
-import { useNavigate } from 'react-router-dom'
-import { useWishlist } from '../context/WishlistContext'
-import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { FaHeart } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast"; 
+
+import allProductsImg from "../assets/all-products.jpeg";
+import tshirtImg from "../assets/tshirt.jpeg";
+import shoesImg from "../assets/sneakers.jpeg";
+import bagImg from "../assets/bag.jpeg";
+import hatImg from "../assets/cowboyHat.jpeg";
+import accessoriesImg from "../assets/accessories.jpeg";
+import jacketImg from "../assets/jacket .jpeg";
+import jeansImg from "../assets/jeans.jpeg";
+import watchImg from "../assets/watch.jpeg";
+import sunglassesImg from "../assets/sunglasses.jpeg";
+import beltImg from "../assets/belt.jpeg";
 
 const categories = [
-  { name: 'All Products', icon: <FaStar size={24} /> },
-  { name: 'T-Shirts', icon: <FaTshirt size={24} /> },
-  { name: 'Shoes', icon: <FaShoePrints size={24} /> },
-  { name: 'Bags', icon: <FaShoppingBag size={24} /> },
-  { name: 'Hats', icon: <FaHatCowboy size={24} /> },
-  { name: 'Accessories', icon: <FaStar size={24} /> },
-]
+  { name: "All Products", image: allProductsImg },
+  { name: "T-Shirts", image: tshirtImg },
+  { name: "Shoes", image: shoesImg },
+  { name: "Bags", image: bagImg },
+  { name: "Hats", image: hatImg },
+  { name: "Accessories", image: accessoriesImg },
+  { name: "Jackets", image: jacketImg },
+  { name: "Jeans", image: jeansImg },
+  { name: "Watches", image: watchImg },
+  { name: "Sunglasses", image: sunglassesImg },
+  { name: "Belts", image: beltImg },
+];
 
 const BrowseCategoriesCarousel = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All Products')
-  const [products, setProducts] = useState([])
-  const [error, setError] = useState('')
-  const containerRef = useRef(null)
-  const navigate = useNavigate()
-  const { wishlistItems, toggleWishlist } = useWishlist()
-  const { addToCart } = useCart()
-  const { user } = useAuth()
+  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState("");
+  const containerRef = useRef(null);
+  const navigate = useNavigate();
+  const { wishlistItems, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          selectedCategory === 'All Products'
-            ? '/api/products'
+          selectedCategory === "All Products"
+            ? "/api/products"
             : `/api/products?category=${selectedCategory}`
-        )
+        );
 
-        // Ensure products is an array
         const productsArray = Array.isArray(response.data)
           ? response.data
-          : response.data.products || []
+          : response.data.products || [];
 
-        setProducts(productsArray)
-        setError('')
+        setProducts(productsArray);
+        setError("");
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch products')
-        setProducts([]) // Clear products on error
+        setError(err.response?.data?.message || "Failed to fetch products");
+        setProducts([]);
       }
-    }
-    fetchProducts()
-  }, [selectedCategory])
+    };
+    fetchProducts();
+  }, [selectedCategory]);
 
   const scroll = (dir) => {
     if (containerRef.current) {
       containerRef.current.scrollBy({
-        left: dir === 'left' ? -150 : 150,
-        behavior: 'smooth',
-      })
+        left: dir === "left" ? -150 : 150,
+        behavior: "smooth",
+      });
     }
-  }
+  };
 
   const isInWishlist = (productId) =>
-    wishlistItems.some((item) => item.id === productId)
+    wishlistItems.some((item) => item.id === productId);
 
   const handleAddToCart = async (product) => {
     if (!user) {
-      navigate('/login')
-      return
+      navigate("/login");
+      return;
     }
     try {
       await axios.post(
-        '/api/cart',
+        "/api/cart",
         { product_id: product.id, quantity: 1 },
         { headers: { Authorization: `Bearer ${user.token}` } }
-      )
-      addToCart({ ...product, qty: 1 })
-      alert('Added to cart!')
+      );
+      addToCart({ ...product, qty: 1 });
+
+      toast.success(`${product.name} added to cart 🛒`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add to cart')
+      setError(err.response?.data?.message || "Failed to add to cart");
+      toast.error("Failed to add to cart");
     }
-  }
+  };
 
   return (
     <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
@@ -96,32 +108,43 @@ const BrowseCategoriesCarousel = () => {
 
       <div className="relative flex items-center">
         <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-100"
+          onClick={() => scroll("left")}
+          className="absolute left-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
         >
           &lt;
         </button>
 
-        <div ref={containerRef} className="flex space-x-4 overflow-x-auto px-8">
+        <div
+          ref={containerRef}
+          className="flex space-x-4 overflow-x-auto px-8 scrollbar-hide"
+        >
           {categories.map((cat, i) => (
             <div
               key={i}
               onClick={() => setSelectedCategory(cat.name)}
-              className={`flex flex-col items-center justify-center min-w-[90px] p-3 rounded-lg cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center min-w-[100px] md:min-w-[130px] p-3 rounded-lg cursor-pointer transition-all ${
                 selectedCategory === cat.name
-                  ? 'bg-green-700 text-white hover:bg-green-800'
-                  : 'bg-white text-gray-900 hover:bg-gray-100'
+                  ? "bg-green-700 text-white hover:bg-green-800"
+                  : "bg-white text-gray-900 hover:bg-gray-100"
               }`}
             >
-              {cat.icon}
-              <span className="text-sm text-center mt-1">{cat.name}</span>
+              <div className="w-20 h-20 md:w-28 md:h-28 rounded-lg overflow-hidden flex items-center justify-center">
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-sm md:text-base text-center mt-2 font-medium">
+                {cat.name}
+              </span>
             </div>
           ))}
         </div>
 
         <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-100"
+          onClick={() => scroll("right")}
+          className="absolute right-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
         >
           &gt;
         </button>
@@ -146,16 +169,20 @@ const BrowseCategoriesCarousel = () => {
               >
                 <button
                   className={`absolute top-3 right-3 text-xl z-10 ${
-                    isInWishlist(product.id) ? 'text-red-500' : 'text-gray-400'
+                    isInWishlist(product.id) ? "text-red-500" : "text-gray-400"
                   }`}
                   onClick={(e) => {
-                    e.stopPropagation()
-                    toggleWishlist(product)
+                    e.stopPropagation();
+                    toggleWishlist(product);
+                    toast.success(
+                      isInWishlist(product.id)
+                        ? "Removed from wishlist"
+                        : "Added to wishlist"
+                    );
                   }}
                 >
                   <FaHeart />
                 </button>
-
                 <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
                   <img
                     src={product.image_url}
@@ -163,18 +190,21 @@ const BrowseCategoriesCarousel = () => {
                     className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
                   />
                 </div>
-
-                <h4 className="text-sm md:text-base font-medium">{product.name}</h4>
+                <h4 className="text-sm md:text-base font-medium">
+                  {product.name}
+                </h4>
                 <p className="text-red-500 font-bold mt-1">
                   ₦{Number(product.price).toLocaleString()}
                 </p>
-                <p className="text-gray-600 text-sm">Category: {product.category}</p>
+                <p className="text-gray-600 text-sm">
+                  Category: {product.category}
+                </p>
 
                 <button
                   className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    handleAddToCart(product)
+                    e.stopPropagation();
+                    handleAddToCart(product);
                   }}
                 >
                   Add to Cart
@@ -185,7 +215,7 @@ const BrowseCategoriesCarousel = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BrowseCategoriesCarousel
+export default BrowseCategoriesCarousel;
