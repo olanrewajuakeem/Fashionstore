@@ -2,18 +2,39 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const { cart, removeFromCart, updateQty, total } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const MIN_QTY = 1;
+  const MAX_QTY = 10;
+
+  const handleIncrease = (id, currentQty) => {
+    if (currentQty >= MAX_QTY) {
+      toast.warn(`Maximum quantity is ${MAX_QTY}`);
+      return;
+    }
+    updateQty(id, currentQty + 1);
+  };
+
+  const handleDecrease = (id, currentQty) => {
+    if (currentQty <= MIN_QTY) {
+      toast.warn(`Minimum quantity is ${MIN_QTY}`);
+      return;
+    }
+    updateQty(id, currentQty - 1);
+  };
+
   const handleCheckout = () => {
     if (!user) {
+      toast.info("Please login before proceeding to checkout.");
       navigate('/login');
       return;
     }
-    navigate('/checkout'); // Redirect to Checkout page
+    navigate('/checkout'); 
   };
 
   return (
@@ -45,13 +66,19 @@ const Cart = () => {
                   <p className="text-gray-600 text-xs sm:text-sm">Category: {item.category}</p>
                 </div>
                 <div className="flex items-center space-x-2 sm:space-x-4">
-                  <input
-                    type="number"
-                    value={item.qty}
-                    onChange={(e) => updateQty(item.id, parseInt(e.target.value))}
-                    className="w-16 text-center border rounded-lg px-2 py-1 text-sm"
-                    min={1}
-                  />
+                  <button
+                    onClick={() => handleDecrease(item.id, item.qty)}
+                    className="bg-gray-200 px-2 py-1 rounded-full text-sm hover:bg-gray-300"
+                  >
+                    –
+                  </button>
+                  <span className="w-8 text-center font-medium">{item.qty}</span>
+                  <button
+                    onClick={() => handleIncrease(item.id, item.qty)}
+                    className="bg-gray-200 px-2 py-1 rounded-full text-sm hover:bg-gray-300"
+                  >
+                    +
+                  </button>
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="text-gray-600 hover:text-red-500 font-medium text-sm sm:text-base"
