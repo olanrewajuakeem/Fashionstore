@@ -5,32 +5,20 @@ import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
 
 import allProductsImg from "../assets/all-products.jpeg";
 import tshirtImg from "../assets/tshirt.jpeg";
-import shoesImg from "../assets/sneakers.jpeg";
 import bagImg from "../assets/bag.jpeg";
-import hatImg from "../assets/cowboyHat.jpeg";
 import accessoriesImg from "../assets/accessories.jpeg";
 import jacketImg from "../assets/jacket .jpeg";
-import jeansImg from "../assets/jeans.jpeg";
-import watchImg from "../assets/watch.jpeg";
-import sunglassesImg from "../assets/sunglasses.jpeg";
-import beltImg from "../assets/belt.jpeg";
 
 const categories = [
   { name: "All Products", image: allProductsImg },
   { name: "T-Shirts", image: tshirtImg },
-  { name: "Shoes", image: shoesImg },
   { name: "Bags", image: bagImg },
-  { name: "Hats", image: hatImg },
   { name: "Accessories", image: accessoriesImg },
   { name: "Jackets", image: jacketImg },
-  { name: "Jeans", image: jeansImg },
-  { name: "Watches", image: watchImg },
-  { name: "Sunglasses", image: sunglassesImg },
-  { name: "Belts", image: beltImg },
 ];
 
 const BrowseCategoriesCarousel = () => {
@@ -69,7 +57,7 @@ const BrowseCategoriesCarousel = () => {
   const scroll = (dir) => {
     if (containerRef.current) {
       containerRef.current.scrollBy({
-        left: dir === "left" ? -150 : 150,
+        left: dir === "left" ? -250 : 250,
         behavior: "smooth",
       });
     }
@@ -90,8 +78,7 @@ const BrowseCategoriesCarousel = () => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
       addToCart({ ...product, qty: 1 });
-
-      toast.success(`${product.name} added to cart 🛒`);
+      toast.success(`${product.name} added to cart`);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add to cart");
       toast.error("Failed to add to cart");
@@ -99,36 +86,36 @@ const BrowseCategoriesCarousel = () => {
   };
 
   return (
-    <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
+    <div className="w-full bg-gray-50 py-10 px-6 md:px-20">
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
 
-      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">
         Browse by Category
       </h2>
 
       <div className="relative flex items-center">
         <button
           onClick={() => scroll("left")}
-          className="absolute left-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
+          className="absolute left-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition hidden md:block"
         >
           &lt;
         </button>
 
         <div
           ref={containerRef}
-          className="flex space-x-4 overflow-x-auto px-8 scrollbar-hide"
+          className="flex space-x-4 overflow-x-auto px-4 scrollbar-hide"
         >
           {categories.map((cat, i) => (
             <div
               key={i}
               onClick={() => setSelectedCategory(cat.name)}
-              className={`flex flex-col items-center justify-center min-w-[100px] md:min-w-[130px] p-3 rounded-lg cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center min-w-[100px] md:min-w-[130px] p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                 selectedCategory === cat.name
-                  ? "bg-green-700 text-white hover:bg-green-800"
-                  : "bg-white text-gray-900 hover:bg-gray-100"
+                  ? "bg-green-700 text-white shadow-md"
+                  : "bg-white text-gray-900 hover:bg-gray-100 shadow-sm"
               }`}
             >
-              <div className="w-20 h-20 md:w-28 md:h-28 rounded-lg overflow-hidden flex items-center justify-center">
+              <div className="w-20 h-20 md:w-28 md:h-28 rounded-lg overflow-hidden flex items-center justify-center border">
                 <img
                   src={cat.image}
                   alt={cat.name}
@@ -144,33 +131,33 @@ const BrowseCategoriesCarousel = () => {
 
         <button
           onClick={() => scroll("right")}
-          className="absolute right-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100"
+          className="absolute right-0 z-10 bg-white rounded-full shadow-md p-2 hover:bg-gray-100 transition hidden md:block"
         >
           &gt;
         </button>
       </div>
 
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+      <div className="mt-10">
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
           {selectedCategory}
         </h3>
 
         {products.length === 0 ? (
-          <div className="text-center text-gray-500 mt-10">
+          <div className="text-center text-gray-500 mt-12 text-lg">
             No products found in this category.
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="relative bg-white rounded-xl shadow flex flex-col items-center text-center hover:shadow-lg transition w-full p-4 cursor-pointer"
+                className="relative bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col items-center text-center p-4 cursor-pointer group"
                 onClick={() => navigate(`/product/${product.id}`)}
               >
                 <button
-                  className={`absolute top-3 right-3 text-xl z-10 ${
+                  className={`absolute top-3 right-3 text-xl z-10 transition ${
                     isInWishlist(product.id) ? "text-red-500" : "text-gray-400"
-                  }`}
+                  } hover:scale-110`}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleWishlist(product);
@@ -183,25 +170,27 @@ const BrowseCategoriesCarousel = () => {
                 >
                   <FaHeart />
                 </button>
-                <div className="w-full h-40 md:h-48 flex items-center justify-center overflow-hidden mb-3">
+
+                <div className="w-full h-44 md:h-52 flex items-center justify-center overflow-hidden mb-3 rounded-lg">
                   <img
                     src={product.image_url}
                     alt={product.name}
-                    className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
-                <h4 className="text-sm md:text-base font-medium">
+
+                <h4 className="text-sm md:text-base font-medium text-gray-800">
                   {product.name}
                 </h4>
-                <p className="text-red-500 font-bold mt-1">
+                <p className="text-red-500 font-bold mt-1 text-sm md:text-base">
                   ₦{Number(product.price).toLocaleString()}
                 </p>
-                <p className="text-gray-600 text-sm">
-                  Category: {product.category}
+                <p className="text-gray-500 text-xs md:text-sm">
+                  {product.category}
                 </p>
 
                 <button
-                  className="mt-5 bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-all w-max"
+                  className="mt-4 bg-green-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-green-700 transition-all w-full md:w-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddToCart(product);

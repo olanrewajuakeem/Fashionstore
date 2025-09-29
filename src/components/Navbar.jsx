@@ -5,6 +5,7 @@ import { assets } from '../assets/assets'
 import { Heart, ShoppingCart, User, Search, Menu, X } from 'lucide-react'
 import axios from 'axios'
 import { useCart } from '../context/CartContext' 
+import { useWishlist } from '../context/WishlistContext'   
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { user, logout } = useContext(AuthContext)
   const { cartCount } = useCart() 
+  const { wishlistCount } = useWishlist()  
   const navigate = useNavigate()
 
   const scrollToSection = (id) => {
@@ -70,12 +72,17 @@ const Navbar = () => {
           <li><button onClick={() => navigate('/')} className="hover:text-gray-900">Home</button></li>
           <li><button onClick={() => scrollToSection('about')} className="hover:text-gray-900">About</button></li>
           <li><button onClick={() => scrollToSection('contact')} className="hover:text-gray-900">Contact</button></li>
-          <li><button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button></li>
+          {/* <li><button onClick={() => scrollToSection('blog')} className="hover:text-gray-900">Blog</button></li> */}
         </ul>
 
         <div className="flex items-center space-x-4 relative">
           <button onClick={() => navigate('/wishlist')} className="hover:text-gray-600 relative">
             <Heart size={22} />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {wishlistCount}
+              </span>
+            )}
           </button>
 
           <button onClick={() => navigate('/cart')} className="relative hover:text-gray-600">
@@ -95,7 +102,7 @@ const Navbar = () => {
               <User size={22} />
               {user && (
                 <span className="hidden md:inline text-sm font-medium text-gray-700">
-                  {user.name || user.username || 'Profile'}
+                  {user.username || 'Profile'}
                 </span>
               )}
             </button>
