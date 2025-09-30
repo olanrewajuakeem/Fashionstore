@@ -38,11 +38,11 @@ const Cart = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen pt-16 sm:pt-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-gray-800">
-          My Cart
-        </h2>
+<div className="bg-gray-50 min-h-screen pt-32 sm:pt-36">
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6 text-gray-800">
+      My Cart
+    </h2>
 
         {cart.length === 0 ? (
           <p className="text-center text-gray-600 text-base sm:text-lg">Your cart is empty.</p>

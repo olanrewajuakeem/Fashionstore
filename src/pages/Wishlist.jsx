@@ -30,11 +30,11 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen pt-20 md:pt-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <h2 className="text-3xl font-bold text-center mb-4 text-gray-800">
-          My Wishlist
-        </h2>
+    <div className="bg-gray-50 min-h-screen pt-32 sm:pt-36">
+  <div className="max-w-6xl mx-auto px-6">
+    <h2 className="text-3xl font-bold text-center mb-4 text-gray-800">
+      My Wishlist
+    </h2>
 
         {wishlistItems.length === 0 && (
           <div className="text-center mb-8">
