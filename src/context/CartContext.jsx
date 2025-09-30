@@ -9,70 +9,86 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const { user } = useAuth();
 
+  const refreshCart = async () => {
+    if (!user || !user.token) {
+      console.log("No user or token, skipping cart refresh");
+      setCart([]);
+      return;
+    }
+    try {
+      const response = await axios.get("http://127.0.0.1:5000/api/cart", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      console.log("Refreshed cart from backend:", JSON.stringify(response.data, null, 2)); // Debug log
+      setCart(
+        response.data.map((item) => ({
+          id: item.id,
+          product_id: parseInt(item.product_id) || null, // Ensure integer or null
+          name: item.product?.name || "Unknown",
+          price: item.price || 0,
+          discounted_price: item.product?.discounted_price || item.price || 0,
+          qty: item.quantity || 1,
+          image_url: item.product?.image_url || null,
+          category: item.product?.category || "Unknown",
+        }))
+      );
+    } catch (err) {
+      console.error("Failed to refresh cart:", err.response?.data || err.message);
+      toast.error(`Failed to refresh cart: ${err.response?.data?.message || err.message}`);
+      setCart([]);
+    }
+  };
+
   useEffect(() => {
-    if (user) {
-      axios
-        .get("http://127.0.0.1:5000/api/cart", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        })
-        .then((response) => {
-          setCart(
-            response.data.map((item) => ({
-              id: item.id,
-              product_id: item.product_id,
-              name: item.product.name,
-              price: item.price,
-              discounted_price: item.product.discounted_price,
-              qty: item.quantity,
-              image_url: item.product.image_url,
-              category: item.product.category,
-            }))
-          );
-        })
-        .catch((err) => {
-          console.error("Failed to fetch cart:", err);
-        });
+    if (user && user.token) {
+      console.log("User logged in, refreshing cart:", JSON.stringify(user, null, 2)); // Debug log
+      refreshCart();
     } else {
+      console.log("No user, loading cart from localStorage");
       const storedCart = localStorage.getItem("cart");
+      console.log("Stored cart from localStorage:", storedCart); // Debug log
       setCart(storedCart ? JSON.parse(storedCart) : []);
     }
   }, [user]);
 
   useEffect(() => {
     if (!user) {
+      console.log("Saving cart to localStorage:", JSON.stringify(cart, null, 2)); // Debug log
       localStorage.setItem("cart", JSON.stringify(cart));
     }
   }, [cart, user]);
 
   const addToCart = async (product) => {
-    if (user) {
+    if (!product || !product.id || isNaN(parseInt(product.id))) {
+      console.error("Invalid product:", JSON.stringify(product, null, 2)); // Debug log
+      toast.error("Invalid product data");
+      return;
+    }
+    if (user && user.token) {
       try {
+        console.log("Adding to cart (user):", JSON.stringify(product, null, 2)); // Debug log
+        const productId = parseInt(product.id);
+        if (isNaN(productId)) {
+          console.error("Invalid product ID:", product.id);
+          toast.error("Invalid product ID");
+          return;
+        }
+        const payload = { product_id: productId, quantity: product.qty || 1 };
+        console.log("Sending addToCart payload:", JSON.stringify(payload, null, 2)); // Debug log
         await axios.post(
           "http://127.0.0.1:5000/api/cart",
-          { product_id: product.id, quantity: product.qty || 1 },
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          payload,
+          { headers: { Authorization: `Bearer ${user.token}`, "Content-Type": "application/json" } }
         );
-        const response = await axios.get("http://127.0.0.1:5000/api/cart", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setCart(
-          response.data.map((item) => ({
-            id: item.id,
-            product_id: item.product_id,
-            name: item.product.name,
-            price: item.price,
-            discounted_price: item.product.discounted_price,
-            qty: item.quantity,
-            image_url: item.product.image_url,
-            category: item.product.category,
-          }))
-        );
-        toast.success(`${product.name} added to cart 🛒`);
+        await refreshCart();
+        toast.success(`${product.name || "Item"} added to cart 🛒`);
       } catch (err) {
-        console.error("Failed to add to cart:", err);
-        toast.error("Failed to add to cart");
+        console.error("Failed to add to cart:", err.response?.data || err.message);
+        console.log("Error response:", JSON.stringify(err.response?.data, null, 2)); // Debug log
+        toast.error(`Failed to add to cart: ${err.response?.data?.message || err.message}`);
       }
     } else {
+      console.log("Adding to cart (no user):", JSON.stringify(product, null, 2)); // Debug log
       const exists = cart.find((item) => item.id === product.id);
       const updatedCart = exists
         ? cart.map((item) =>
@@ -84,74 +100,114 @@ export function CartProvider({ children }) {
             ...cart,
             {
               ...product,
+              id: product.id,
+              product_id: parseInt(product.id) || null, // Ensure integer
               qty: product.qty || 1,
-              image_url: product.image_url || product.img,
-              discounted_price: product.discounted_price || product.price,
+              image_url: product.image_url || product.img || null,
+              discounted_price: product.discounted_price || product.price || 0,
             },
           ];
       setCart(updatedCart);
-      toast.success(`${product.name} added to cart 🛒`);
+      toast.success(`${product.name || "Item"} added to cart 🛒`);
     }
   };
 
   const removeFromCart = async (cartItemId) => {
-    if (user) {
+    if (user && user.token) {
       try {
         const cartItem = cart.find((item) => item.id === cartItemId);
-        if (!cartItem) return;
+        if (!cartItem) {
+          console.error("Cart item not found:", cartItemId);
+          toast.error("Cart item not found");
+          return;
+        }
+        console.log("Removing cart item:", JSON.stringify(cartItem, null, 2)); // Debug log
+        const productId = parseInt(cartItem.product_id);
+        if (isNaN(productId)) {
+          console.error("Invalid product ID for removal:", cartItem.product_id);
+          toast.error("Invalid product ID");
+          await refreshCart();
+          return;
+        }
+        const payload = { product_id: productId };
+        console.log("Sending removeFromCart payload:", JSON.stringify(payload, null, 2)); // Debug log
         await axios.delete("http://127.0.0.1:5000/api/cart", {
-          headers: { Authorization: `Bearer ${user.token}` },
-          data: { product_id: cartItem.product_id },
+          headers: { Authorization: `Bearer ${user.token}`, "Content-Type": "application/json" },
+          data: payload,
         });
         setCart(cart.filter((item) => item.id !== cartItemId));
-        toast.error(`${cartItem.name} removed from cart`);
+        toast.error(`${cartItem.name || "Item"} removed from cart`);
       } catch (err) {
-        console.error("Failed to remove from cart:", err);
+        console.error("Failed to remove from cart:", err.response?.data || err.message);
+        console.log("Error response:", JSON.stringify(err.response?.data, null, 2)); // Debug log
+        toast.error(`Failed to remove from cart: ${err.response?.data?.message || err.message}`);
       }
     } else {
       const removed = cart.find((item) => item.id === cartItemId);
       setCart(cart.filter((item) => item.id !== cartItemId));
-      if (removed) toast.error(`${removed.name} removed from cart`);
+      if (removed) toast.error(`${removed.name || "Item"} removed from cart`);
     }
   };
 
   const updateQty = async (cartItemId, qty) => {
-    if (user) {
+    if (user && user.token) {
       try {
+        await refreshCart();
         const cartItem = cart.find((item) => item.id === cartItemId);
-        if (!cartItem) return;
+        if (!cartItem) {
+          console.error("Cart item not found:", cartItemId);
+          toast.error("Cart item not found");
+          return;
+        }
+        console.log("Updating cart item:", JSON.stringify(cartItem, null, 2)); // Debug log
+        console.log("Product ID:", cartItem.product_id, "Quantity:", qty); // Debug log
+        if (qty < 1) {
+          toast.warn("Minimum quantity is 1");
+          return;
+        }
+        if (qty > 10) {
+          toast.warn("Maximum quantity is 10");
+          return;
+        }
+        const productId = parseInt(cartItem.product_id);
+        if (isNaN(productId)) {
+          console.error("Invalid product ID:", cartItem.product_id);
+          toast.error("Invalid product ID");
+          await refreshCart();
+          return;
+        }
+        const payload = {
+          product_id: productId,
+          quantity: qty,
+          absolute: true,
+        };
+        console.log("Sending updateQty payload:", JSON.stringify(payload, null, 2)); // Debug log
         await axios.post(
           "http://127.0.0.1:5000/api/cart",
-          { product_id: cartItem.product_id, quantity: Math.max(1, qty) },
-          { headers: { Authorization: `Bearer ${user.token}` } }
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
-        const response = await axios.get("http://127.0.0.1:5000/api/cart", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setCart(
-          response.data.map((item) => ({
-            id: item.id,
-            product_id: item.product_id,
-            name: item.product.name,
-            price: item.price,
-            discounted_price: item.product.discounted_price,
-            qty: item.quantity,
-            image_url: item.product.image_url,
-            category: item.product.category,
-          }))
-        );
-        toast.success(`Updated quantity for ${cartItem.name}`);
+        await refreshCart();
+        toast.success(`Updated quantity for ${cartItem.name || "Item"}`);
       } catch (err) {
-        console.error("Failed to update cart:", err);
+        console.error("Failed to update cart:", err.response?.data || err.message);
+        console.log("Error response:", JSON.stringify(err.response?.data, null, 2)); // Debug log
+        toast.error(`Failed to update quantity: ${err.response?.data?.message || err.message}`);
       }
     } else {
-      setCart(
-        cart.map((item) =>
-          item.id === cartItemId ? { ...item, qty: Math.max(1, qty) } : item
-        )
+      const updatedCart = cart.map((item) =>
+        item.id === cartItemId ? { ...item, qty: Math.max(1, Math.min(10, qty)) } : item
       );
-      const updated = cart.find((item) => item.id === cartItemId);
-      if (updated) toast.success(`Updated quantity for ${updated.name}`);
+      setCart(updatedCart);
+      const updatedItem = updatedCart.find((item) => item.id === cartItemId);
+      if (updatedItem) {
+        toast.success(`Updated quantity for ${updatedItem.name || "Item"}`);
+      }
     }
   };
 
@@ -161,10 +217,10 @@ export function CartProvider({ children }) {
     toast.success("Cart cleared");
   };
 
-  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  const cartCount = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
   const total = cart.reduce(
     (sum, item) =>
-      sum + (item.discounted_price || item.price) * item.qty,
+      sum + ((item.discounted_price || item.price || 0) * (item.qty || 0)),
     0
   );
 

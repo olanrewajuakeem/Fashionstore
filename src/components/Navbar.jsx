@@ -102,7 +102,6 @@ const Navbar = () => {
               <User size={22} />
               {user && (
                 <span className="hidden md:inline text-sm font-medium text-gray-700">
-                  {user.username || 'Profile'}
                 </span>
               )}
             </button>
