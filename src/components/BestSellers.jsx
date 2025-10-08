@@ -18,7 +18,7 @@ const BestSellers = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get('/api/products')
-        setProducts(response.data.slice(0, 4)) // Limit to 4 for best sellers
+        setProducts(response.data.slice(0, 4)) 
         setError('')
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch products')
@@ -48,11 +48,13 @@ const BestSellers = () => {
   const isInWishlist = (productId) => wishlistItems.some((item) => item.id === productId)
 
   return (
-    <div className="w-full bg-gray-50 py-6 px-6 md:px-20">
-      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
-        Best Sellers
-      </h2>
+   <div className="w-full bg-gray-50 py-10 px-6 md:px-20">
+  {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+
+  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+    Best Sellers
+  </h2>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {products.map((product) => (
           <div
